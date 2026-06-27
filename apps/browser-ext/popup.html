@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { width: 280px; padding: 20px; background: #020617; color: white; font-family: sans-serif; text-align: center; margin: 0; }
+        .brand { color: #00f0ff; font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; }
+        .status-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .btn-start { width: 100%; padding: 12px; background: #00f0ff; color: #020617; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-start:hover { box-shadow: 0 0 15px #00f0ff; transform: scale(1.02); }
+        #status { font-size: 0.9rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="brand">FLIZZY OS</div>
+    <div class="status-card">
+        <div id="status">Status: Standby</div>
+    </div>
+    <button id="startBtn" class="btn-start">Start Neural Link</button>
+    <script type="module" src="./popup.js"></script>
+</body>
+</html>

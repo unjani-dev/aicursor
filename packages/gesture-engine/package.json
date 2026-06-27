@@ -1,0 +1,17 @@
+{
+    "name": "@ai-cursor/gesture-engine",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": "./dist/index.js"
+    },
+    "types": "dist/index.d.ts",
+    "scripts": {
+      "build": "tsc"
+    },
+    "devDependencies": {
+      "typescript": "^5.0.0"
+    }
+  }

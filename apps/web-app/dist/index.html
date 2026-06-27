@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flizzy OS - Web Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #080b10;
+            --panel: rgba(15, 20, 28, 0.86);
+            --panel-strong: #111824;
+            --border: rgba(148, 163, 184, 0.24);
+            --text: #f8fafc;
+            --muted: #a8b3c7;
+            --cyan: #22d3ee;
+            --amber: #f59e0b;
+            --rose: #fb7185;
+            --green: #34d399;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Outfit", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+                var(--bg);
+            background-size: 28px 28px;
+            overflow-x: hidden;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px clamp(18px, 4vw, 44px);
+            background: rgba(8, 11, 16, 0.86);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(16px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .logo-mark {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 18px rgba(52, 211, 153, 0.55);
+        }
+
+        .build-tag {
+            color: var(--muted);
+            font: 700 0.72rem/1 "JetBrains Mono", monospace;
+        }
+
+        main {
+            width: min(1180px, calc(100vw - 36px));
+            margin: 0 auto;
+            padding: 34px 0 150px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+            gap: 22px;
+            align-items: stretch;
+            min-height: calc(100vh - 120px);
+        }
+
+        .console,
+        .launchpad {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(18px);
+        }
+
+        .console {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 520px;
+            overflow: hidden;
+        }
+
+        .console-header,
+        .launchpad-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .eyebrow {
+            color: var(--cyan);
+            font: 700 0.72rem/1 "JetBrains Mono", monospace;
+        }
+
+        h1 {
+            margin-top: 10px;
+            font-size: clamp(2.4rem, 7vw, 5.4rem);
+            line-height: 0.92;
+            letter-spacing: 0;
+        }
+
+        .status-pill {
+            flex: 0 0 auto;
+            padding: 8px 10px;
+            color: #071016;
+            background: var(--green);
+            border-radius: 6px;
+            font: 800 0.68rem/1 "JetBrains Mono", monospace;
+        }
+
+        .console-body {
+            display: grid;
+            align-content: center;
+            gap: 24px;
+            padding: clamp(22px, 4vw, 44px);
+        }
+
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .signal {
+            min-height: 104px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(17, 24, 36, 0.76);
+        }
+
+        .signal strong {
+            display: block;
+            margin-bottom: 18px;
+            color: var(--text);
+            font-size: 0.92rem;
+        }
+
+        .signal span {
+            color: var(--muted);
+            font: 700 0.7rem/1.25 "JetBrains Mono", monospace;
+        }
+
+        .console-footer {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            border-top: 1px solid var(--border);
+        }
+
+        .metric {
+            padding: 16px 18px;
+            border-right: 1px solid var(--border);
+        }
+
+        .metric:last-child {
+            border-right: 0;
+        }
+
+        .metric-value {
+            display: block;
+            color: var(--amber);
+            font: 800 1rem/1 "JetBrains Mono", monospace;
+        }
+
+        .metric-label {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .launchpad {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-height: 520px;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding: 18px;
+            align-content: start;
+        }
+
+        .app-card {
+            min-height: 150px;
+            display: grid;
+            align-content: space-between;
+            gap: 16px;
+            padding: 16px;
+            color: var(--text);
+            text-decoration: none;
+            background: rgba(17, 24, 36, 0.76);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+        }
+
+        .app-card:hover,
+        .app-card:focus-visible {
+            outline: none;
+            transform: translateY(-4px);
+            border-color: var(--cyan);
+            background: rgba(17, 30, 40, 0.92);
+            box-shadow: 0 14px 34px rgba(34, 211, 238, 0.16);
+        }
+
+        .app-card[data-accent="amber"]:hover,
+        .app-card[data-accent="amber"]:focus-visible {
+            border-color: var(--amber);
+            box-shadow: 0 14px 34px rgba(245, 158, 11, 0.18);
+        }
+
+        .app-card[data-accent="rose"]:hover,
+        .app-card[data-accent="rose"]:focus-visible {
+            border-color: var(--rose);
+            box-shadow: 0 14px 34px rgba(251, 113, 133, 0.16);
+        }
+
+        .app-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .app-icon {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+        }
+
+        .app-code {
+            color: var(--muted);
+            font: 700 0.64rem/1 "JetBrains Mono", monospace;
+        }
+
+        .app-name {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .app-meta {
+            color: var(--muted);
+            font: 700 0.7rem/1.3 "JetBrains Mono", monospace;
+        }
+
+        @media (max-width: 920px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .console,
+            .launchpad {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 620px) {
+            nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .signal-grid,
+            .console-footer,
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metric {
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .metric:last-child {
+                border-bottom: 0;
+            }
+        }
+    </style>
+  <script type="module" crossorigin src="/assets/main-19c16120.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <span class="logo-mark"></span>
+            <span>FLIZZY</span>
+        </div>
+        <div class="build-tag">WEB_APP_BUILD v4.0</div>
+    </nav>
+
+    <main>
+        <section class="workspace">
+            <div class="console">
+                <div class="console-header">
+                    <div>
+                        <div class="eyebrow">CONTROL CENTER</div>
+                        <h1>Gesture Web Apps</h1>
+                    </div>
+                    <div class="status-pill">ACTIVE</div>
+                </div>
+
+                <div class="console-body">
+                    <div class="signal-grid">
+                        <div class="signal">
+                            <strong>Face</strong>
+                            <span>HEAD + BLINK</span>
+                        </div>
+                        <div class="signal">
+                            <strong>Hand</strong>
+                            <span>INDEX + PINCH</span>
+                        </div>
+                    
+                    </div>
+                </div>
+
+            
+            </div>
+
+            <aside class="launchpad">
+                <div class="launchpad-header">
+                    <div>
+                        <div class="eyebrow">LAUNCHPAD</div>
+                    </div>
+                    <div class="build-tag">READY</div>
+                </div>
+
+                <div class="app-grid">
+                
+
+                    <a href="movies.html" class="app-card" data-accent="rose">
+                        <div class="app-top">
+                            <img src="https://cdn.simpleicons.org/netflix/E50914" class="app-icon" alt="">
+                            <span class="app-code">CINEMA</span>
+                        </div>
+                        <div>
+                            <span class="app-name">Movies</span>
+                            <span class="app-meta">TMDB FEED</span>
+                        </div>
+                    </a>
+
+                    <a href="music.html" class="app-card" data-accent="amber">
+                        <div class="app-top">
+                            <img src="https://cdn.simpleicons.org/spotify/1ED760" class="app-icon" alt="">
+                            <span class="app-code">AUDIO</span>
+                        </div>
+                        <div>
+                            <span class="app-name">Music</span>
+                            <span class="app-meta">ITUNES FEED</span>
+                        </div>
+                    </a>
+
+                    
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    
+</body>
+</html>

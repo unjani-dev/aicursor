@@ -1,0 +1,13 @@
+{
+    "name": "ai-cursor-monorepo",
+    "private": true,
+    "workspaces": [
+      "packages/*",
+      "apps/*"
+    ],
+    "scripts": {
+      "build:packages": "npm run build --workspaces --if-present",
+      "build:ext": "npm run build --workspace @ai-cursor/browser-ext",
+      "build": "npm run build:packages && npm run build:ext"
+    }
+  }

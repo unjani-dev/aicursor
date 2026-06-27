@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Flizzy OS - AI Vision Extension",
+  "version": "1.2.0",
+  "description": "Enterprise Neural Interface by Flizzy Vision Team",
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "offscreen",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "icons": {
+    "16": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Flizzy OS Control Panel"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["wasm/*", "models/*", "permission.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

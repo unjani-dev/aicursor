@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flizzy OS - Neural Interface Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #020617;
+            --accent-cyan: #00f0ff;
+            --accent-purple: #8b5cf6;
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(0, 240, 255, 0.2);
+            --neon-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 240, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+                linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            width: 100%; padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .logo-brand {
+            font-weight: 800; font-size: 1.4rem;
+            letter-spacing: 2px; color: var(--accent-cyan);
+            text-shadow: var(--neon-shadow);
+        }
+
+        /* --- DASHBOARD --- */
+        main {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 40px 20px; z-index: 10;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 800; text-align: center;
+            background: linear-gradient(to bottom, #fff, var(--accent-cyan));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px; width: 100%; max-width: 1100px;
+        }
+
+        .app-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 30px 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: none; /* AI Cursor take over */
+            position: relative;
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-cyan);
+            box-shadow: var(--neon-shadow);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .app-icon { width: 48px; height: 48px; object-fit: contain; }
+
+        /* --- MODAL POPUP (SYSTEM LAYER) --- */
+        .modal {
+            position: fixed; inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 5000; /* Di bawah kursor, di atas segalanya */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            animation: modalFade 0.3s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(1.05); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 15px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #050a18;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        /* TOMBOL EXIT - TARGET KLIK AI */
+        .btn-exit {
+            background: #ef4444;
+            color: white; border: none;
+            padding: 12px 30px; border-radius: 8px;
+            font-weight: 800; text-transform: uppercase;
+            cursor: none; /* Agar tidak muncul kursor sistem */
+            z-index: 5001;
+            transition: 0.3s;
+        }
+
+        .btn-exit:hover {
+            background: #ff0000;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+
+        .modal-body { flex: 1; background: #000; position: relative; }
+
+        /* --- CAMERA HUD --- */
+        .camera-hud {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 180px; background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 5px; border-radius: 12px;
+            z-index: 10000; /* Selalu terlihat */
+            box-shadow: var(--neon-shadow);
+        }
+
+        .camera-hud video {
+            width: 100%; border-radius: 8px;
+            transform: scaleX(-1);
+        }
+
+        /* --- AI CURSOR (ABSOLUTE TOP) --- */
+        #cursor {
+            position: fixed;
+            width: 32px; height: 32px;
+            border: 2px solid var(--accent-cyan);
+            border-radius: 50%;
+            background: rgba(0, 240, 255, 0.1);
+            pointer-events: none; /* KRUSIAL: Agar elementFromPoint bekerja */
+            z-index: 9999999; 
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s linear;
+            box-shadow: 0 0 15px var(--accent-cyan);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        #cursor::after {
+            content: ''; width: 4px; height: 4px;
+            background: var(--accent-cyan); border-radius: 50%;
+        }
+
+        .click-anim {
+            transform: translate(-50%, -50%) scale(0.5) !important;
+            background: var(--accent-cyan) !important;
+        }
+    </style>
+  <script type="module" crossorigin src="/assets/main-19c16120.js"></script>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-brand">FLIZZY VISION OS</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent-cyan);">
+            STATUS: NEURAL_LINK_ACTIVE
+        </div>
+    </nav>
+
+    <main id="dashboard-ui">
+        <div class="hero">
+            <h1>CHOOSE INTERFACE</h1>
+        </div>
+
+        <div class="app-grid">
+            
+            <button class="app-card" onclick="openApp('Flizzy Movies', './movies.html')">
+                <img src="https://cdn.simpleicons.org/netflix/E50914" class="app-icon">
+                <span class="app-name">Flizzy Flix</span>
+            </button>
+
+            <button class="app-card" onclick="openApp('YouTube Music', 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1')">
+                <img src="https://cdn.simpleicons.org/youtube/FF0000" class="app-icon">
+                <span class="app-name">YouTube</span>
+            </button>
+
+            <button class="app-card" onclick="openApp('Wikipedia', 'https://en.m.wikipedia.org/wiki/Main_Page')">
+                <img src="https://cdn.simpleicons.org/wikipedia/ffffff" class="app-icon">
+                <span class="app-name">Wikipedia</span>
+            </button>
+
+            <button class="app-card" onclick="openApp('Maps', 'https://www.openstreetmap.org/export/embed.html')">
+                <img src="https://cdn.simpleicons.org/googlemaps/4285F4" class="app-icon">
+                <span class="app-name">OSM Maps</span>
+            </button>
+
+            <button class="app-card" onclick="openApp('Twitch Live', 'https://player.twitch.tv/?channel=riotgames&parent=localhost')">
+                <img src="https://cdn.simpleicons.org/twitch/9146FF" class="app-icon">
+                <span class="app-name">Twitch</span>
+            </button>
+
+            <button class="app-card" onclick="openApp('Music.com', './music.html')">
+                <img src="https://cdn.simpleicons.org/spotify/1ED760" class="app-icon">
+                <span class="app-name">Music.com</span>
+            </button>
+        </div>
+    </main>
+
+    <div class="modal" id="appModal">
+        <div class="modal-header">
+            <div id="modalTitle" style="font-weight: 800; color: var(--accent-cyan); font-family: 'JetBrains Mono';">APP::LOADING</div>
+            <button class="btn-exit" id="closeBtn" onclick="closeApp()">EXIT_TERMINAL [X]</button>
+        </div>
+        <div class="modal-body">
+            <iframe id="appFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
+    <div class="camera-hud">
+        <video id="webcam" autoplay playsinline></video>
+        <div class="flizzy-camera-label" style="font-family: 'JetBrains Mono'; font-size: 9px; text-align: center; margin-top: 5px; color: var(--accent-cyan);">
+            FACE_ENGINE
+        </div>
+    </div>
+
+    <div id="cursor"></div>
+
+    
+    
+    <script>
+        const modal = document.getElementById('appModal');
+        const frame = document.getElementById('appFrame');
+        const title = document.getElementById('modalTitle');
+
+        function openApp(name, url) {
+            title.innerText = `TERMINAL_LINK: ${name.toUpperCase()}`;
+            modal.style.display = 'flex';
+            frame.src = url;
+            console.log(`Neural Link Established: ${name}`);
+        }
+
+        function closeApp() {
+            modal.style.display = 'none';
+            frame.src = "";
+            console.log("Neural Link Terminated");
+        }
+    </script>
+</body>
+</html>

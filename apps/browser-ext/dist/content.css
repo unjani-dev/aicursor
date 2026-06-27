@@ -1,0 +1,35 @@
+#flizzy-cursor {
+    position: fixed !important;
+    top: 0 !important; 
+    left: 0 !important;
+    width: 28px !important; 
+    height: 28px !important;
+    border: 2px solid #00f0ff !important;
+    border-radius: 50% !important;
+    background: rgba(0, 240, 255, 0.1) !important;
+    pointer-events: none !important;
+    z-index: 2147483647 !important; /* Z-index maksimal browser */
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5), inset 0 0 5px #00f0ff !important;
+    will-change: transform, left, top !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: width 0.1s ease, height 0.1s ease !important;
+}
+
+#flizzy-cursor .cursor-inner {
+    width: 4px !important; 
+    height: 4px !important;
+    background: #00f0ff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 10px #00f0ff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#flizzy-cursor.clicking {
+    background: #00f0ff !important;
+    transform: translate(-50%, -50%) scale(0.6) !important;
+}
